@@ -1,0 +1,136 @@
+version: "3.5"
+services:
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  homarr:
+    container_name: homarr
+    image: ghcr.io/ajnart/homarr:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Optional, only if you want docker integration
+      - /docker/appdata/homarr/configs:/app/data/configs
+      - /docker/appdata/homarr/icons:/app/public/icons
+      - /docker/appdata/homarr/data:/data
+    ports:
+      - '7575:7575'
+  deluge:
+    image: lscr.io/linuxserver/deluge:latest
+    container_name: deluge
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Calcutta
+      - DELUGE_LOGLEVEL=error #optional
+    volumes:
+      - /docker/appdata/deluge/config:/config
+      - /mnt/hdd/data/torrents:/downloads
+    ports:
+      - 8112:8112
+      - 6881:6881
+      - 6881:6881/udp
+      - 58846:58846 #optional
+    restart: unless-stopped
+  i2p:
+      image: geti2p/i2p:latest
+      network_mode: host
+      ports:
+      - "4444:4444/tcp"
+      - "7657:7657/tcp"
+      - "7777:7777/tcp"
+      - "7777:7777/udp"
+      volumes:
+          - /docker/appdata/i2pconfig:/i2p/.i2p
+          - /mnt/hdd/data/torrents:/i2psnark
+  jellyfin:
+    container_name: jellyfin
+    image: ghcr.io/hotio/jellyfin
+    ports:
+      - "8096:8096"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Asia/Calcutta
+    volumes:
+      - /docker/appdata/jellyfin:/config
+      - /mnt/hdd/data/media:/data
+  prowlarr:
+    container_name: prowlarr
+    image: ghcr.io/hotio/prowlarr
+    ports:
+      - "9696:9696"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Asia/Calcutta
+    volumes:
+      - /docker/appdata/prowlarr:/config
+      - /etc/localtime:/etc/localtime:ro
+  radarr:
+    container_name: radarr
+    image: ghcr.io/hotio/radarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    ports:
+      - 7878:7878
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Calcutta
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /docker/appdata/radarr:/config
+      - /mnt/hdd/data:/data
+  sonarr:
+    container_name: sonarr
+    image: ghcr.io/hotio/sonarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    ports:
+      - 8989:8989
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Calcutta
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /docker/appdata/sonarr:/config
+      - /mnt/hdd/data:/data
+  bazarr:
+    container_name: bazarr
+    image: ghcr.io/hotio/bazarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    ports:
+      - 6767:6767
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Calcutta
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /docker/appdata/bazarr:/config
+      - /mnt/hdd/data/media:/data/media
+  sabnzbd:
+    container_name: sabnzbd
+    image: ghcr.io/hotio/sabnzbd:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    ports:
+      - 8080:8080
+      - 9090:9090
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Calcutta
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /docker/appdata/sabnzbd:/config
+      - /mnt/hdd/data/usenet:/data/usenet:rw
