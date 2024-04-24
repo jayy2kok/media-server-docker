@@ -1,0 +1,27 @@
+services:
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    container_name: duckdns
+    network_mode: host #optional
+    environment:
+      - PUID=1000 #optional
+      - PGID=1000 #optional
+      - TZ=Asia/Calcutta #optional
+      - SUBDOMAINS=jayy2kok
+      - TOKEN=a3bc0177-ddf2-422e-8f5c-194618ccf50a
+      - UPDATE_IP=ipv4 #optional
+      - LOG_FILE=false #optional
+    volumes:
+      - /docker/appdata/duckdns/config:/config #optional
+    restart: unless-stopped
+  nginx:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 81:81
+      - 443:443
+    volumes:
+      - /docker/appdata/nginx/data:/data
+      - /docker/appdata/letsencrypt:/etc/letsencrypt
